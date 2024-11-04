@@ -1,6 +1,3 @@
-/**
- * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */
 options
 {
   static = true;
@@ -9,8 +6,13 @@ options
 PARSER_BEGIN(PiaCompiller)
 package compilador;
 
+//import java.util.HashMap;
+//import java.util.Map;
+
 public class PiaCompiller
 {
+//  private static Map<String, String> variaveis = new HashMap<>();
+  
   public static void main(String args []) throws ParseException
   {
     PiaCompiller parser = new PiaCompiller(System.in);
@@ -36,6 +38,23 @@ public class PiaCompiller
       }
     }
   }
+  // Métodos auxiliares para gerenciar variáveis
+//    public static void declararVariavel(String tipo, String nome)
+//    {
+//        if (variaveis.containsKey(nome))
+//        {
+//            throw new RuntimeException("Variável '" + nome + "' já foi declarada.");
+//        }
+//        variaveis.put(nome, tipo);
+//    }
+//
+//    public static void verificarVariavel(String nome)
+//    {
+//        if (!variaveis.containsKey(nome))
+//        {
+//            throw new RuntimeException("Variável '" + nome + "' não foi declarada.");
+//        }
+//    }
 }
 
 PARSER_END(PiaCompiller)
@@ -62,17 +81,10 @@ TOKEN : /* OPERATORS */
 TOKEN : /* CONDITIONALS */
 {
   < IF : "eh_memo" >
-//| < ENDIF : "fim_eh_memo" >
 | < ABREPAR : "(" >
 | < FECHAPAR : ")" >
 | < OPREL : "==" | "!=" | "<" | ">" | "<=" | ">=" >
 | < OPBOOL : "&&" | "||" >
-}
-
-TOKEN : /* LOOP */
-{
-  < WHILE : "enquanto_piazada" >
-| < DO : "faz_piazada" >
 }
 
 TOKEN : /* ASSIGNMENT */
@@ -80,12 +92,11 @@ TOKEN : /* ASSIGNMENT */
   < ASSIGN : "=" >
 }
 
-TOKEN : /* ARITHMETIC OPERATORS */
+TOKEN : /* LOOP */
 {
-  < PLUS : "+" >
-| < MINUS : "-" >
-| < MULT : "*" >
-| < DIV : "/" >
+  < WHILE : "enquanto_guri" >
+| < DO : "vai_fazeno" >
+| < DOWHILE : "ate" >
 }
 
 
@@ -96,52 +107,75 @@ TOKEN :
 | < ID : ["a"-"z"](["a"-"z"] | < DIGITO >)* >
 }
 
-void main():
+void main() :
 {}
 {
-	< INICIAPROG > < ABREBLOCO > (declaracaoVariavel() | estruturaCondicional() | estruturaRepeticao() | atribuicao())* < FECHABLOCO >
+    < INICIAPROG > < ABREBLOCO > (instrucao())* < FECHABLOCO >
 }
 
-void declaracaoVariavel():
+void instrucao() :
 {}
 {
-	declaraTipo() < ID > < FIMINSTRUCAO >
+    (declaracaoVariavel() | atribuicao() | expressao()) < FIMINSTRUCAO > | blocoInstrucoes() | estruturaCondicional() | estruturaRepeticao()
 }
 
-void declaraTipo():
+void blocoInstrucoes() :
 {}
 {
-	( < TIPOINT > | < TIPOFLOAT > | < TIPOBOL >)
+    < ABREBLOCO > (instrucao())* < FECHABLOCO >
 }
 
-void estruturaCondicional() :
-{}
+void declaracaoVariavel() :
 {
-	< IF > < ABREPAR > expressao() < FECHAPAR > < ABREBLOCO > (declaracaoVariavel() | estruturaCondicional() | estruturaRepeticao() | atribuicao())* < FECHABLOCO >
+//	Token tipo = null;
+//	Token id = null;
+}
+{
+    declaraTipo() < ID > ( < ASSIGN > expressao() )?
+//    {
+//		PiaCompiller.declararVariavel(tipo.image, id.image); // Armazene o nome e o tipo da variável
+//    }
 }
 
-void estruturaRepeticao() :
-{}
+void declaraTipo() :
 {
-    estruturaWhile() | estruturaDoWhile()
+	//Token tipo = null;
 }
-
-void estruturaWhile() :
-{}
 {
-    < WHILE > < ABREPAR > expressao() < FECHAPAR > < ABREBLOCO > (declaracaoVariavel() | estruturaCondicional() | estruturaRepeticao() | atribuicao())* < FECHABLOCO >
-}
-
-void estruturaDoWhile() :
-{}
-{
-    < DO > < ABREBLOCO > (declaracaoVariavel() | estruturaCondicional() | estruturaRepeticao() | atribuicao())* < FECHABLOCO > < WHILE > < ABREPAR > expressao() < FECHAPAR > < FIMINSTRUCAO >
+    ( < TIPOINT > | < TIPOFLOAT > | < TIPOBOL > )
 }
 
 void atribuicao() :
 {}
 {
-    < ID > < ASSIGN > expressao() < FIMINSTRUCAO >
+  < ID > < ASSIGN > expressao()
+//  {
+//  	PiaCompiller.verificarVariavel(token.image); // Verifique se a variável foi declarada
+//  }
+}
+
+void estruturaCondicional() :
+{}
+{
+    < IF > < ABREPAR > expressao() < FECHAPAR > blocoInstrucoes()
+}
+
+void estruturaRepeticao() :
+{}
+{
+	(estruturaWhile() | estruturaDoWhile())
+}
+
+void estruturaWhile() :
+{}
+{
+	< WHILE > <ABREPAR > expressao() < FECHAPAR > blocoInstrucoes()
+}
+
+void estruturaDoWhile() :
+{}
+{
+	< DO > blocoInstrucoes() < DOWHILE > < ABREPAR > expressao() < FECHAPAR >
 }
 
 void expressao() :
@@ -159,34 +193,5 @@ void termo() :
 void fator() :
 {}
 {
-    LOOKAHEAD(2)
-    < ID > 
-|   < CONSTANT > 
-|   < ABREPAR > expressao() < FECHAPAR > 
-|   fatorOperacao()
+    < ID > | < CONSTANT >
 }
-
-void fatorOperacao() :
-{}
-{
-    LOOKAHEAD(2)
-    fatorSimples() ( ( < PLUS > | < MINUS > | < MULT > | < DIV > ) fatorSimples() )*
-}
-
-void fatorSimples() :
-{}
-{
-    LOOKAHEAD(2)
-    < ID > 
-|   < CONSTANT > 
-|   < ABREPAR > expressao() < FECHAPAR >
-}
-
-
-
-
-
-
-
-
-

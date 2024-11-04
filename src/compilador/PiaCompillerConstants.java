@@ -35,25 +35,19 @@ public interface PiaCompillerConstants {
   /** RegularExpression Id. */
   int OPBOOL = 16;
   /** RegularExpression Id. */
-  int WHILE = 17;
+  int ASSIGN = 17;
   /** RegularExpression Id. */
-  int DO = 18;
+  int WHILE = 18;
   /** RegularExpression Id. */
-  int ASSIGN = 19;
+  int DO = 19;
   /** RegularExpression Id. */
-  int PLUS = 20;
+  int DOWHILE = 20;
   /** RegularExpression Id. */
-  int MINUS = 21;
+  int CONSTANT = 21;
   /** RegularExpression Id. */
-  int MULT = 22;
+  int DIGITO = 22;
   /** RegularExpression Id. */
-  int DIV = 23;
-  /** RegularExpression Id. */
-  int CONSTANT = 24;
-  /** RegularExpression Id. */
-  int DIGITO = 25;
-  /** RegularExpression Id. */
-  int ID = 26;
+  int ID = 23;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -77,13 +71,10 @@ public interface PiaCompillerConstants {
     "\")\"",
     "<OPREL>",
     "<OPBOOL>",
-    "\"enquanto_piazada\"",
-    "\"faz_piazada\"",
     "\"=\"",
-    "\"+\"",
-    "\"-\"",
-    "\"*\"",
-    "\"/\"",
+    "\"enquanto_guri\"",
+    "\"vai_fazeno\"",
+    "\"ate\"",
     "<CONSTANT>",
     "<DIGITO>",
     "<ID>",
