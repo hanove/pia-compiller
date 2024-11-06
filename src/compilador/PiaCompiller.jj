@@ -6,29 +6,24 @@ options
 PARSER_BEGIN(PiaCompiller)
 package compilador;
 
-//import java.util.HashMap;
-//import java.util.Map;
-
 public class PiaCompiller
 {
-//  private static Map<String, String> variaveis = new HashMap<>();
-  
   public static void main(String args []) throws ParseException
   {
     PiaCompiller parser = new PiaCompiller(System.in);
     while (true)
     {
       System.out.println("Reading from standard input...");
-      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      System.out.print("Enter an expression like \"bah_piazada abre_jaguara torresmo x cabo_o_fandango fecha_jaguara\" :");
       try
       {
-        PiaCompiller.main();
+        parser.main();
       }
       catch (Exception e)
       {
         System.out.println("NOK.");
         System.out.println(e.getMessage());
-        PiaCompiller.ReInit(System.in);
+        parser.ReInit(System.in);
       }
       catch (Error e)
       {
@@ -38,23 +33,6 @@ public class PiaCompiller
       }
     }
   }
-  // Métodos auxiliares para gerenciar variáveis
-//    public static void declararVariavel(String tipo, String nome)
-//    {
-//        if (variaveis.containsKey(nome))
-//        {
-//            throw new RuntimeException("Variável '" + nome + "' já foi declarada.");
-//        }
-//        variaveis.put(nome, tipo);
-//    }
-//
-//    public static void verificarVariavel(String nome)
-//    {
-//        if (!variaveis.containsKey(nome))
-//        {
-//            throw new RuntimeException("Variável '" + nome + "' não foi declarada.");
-//        }
-//    }
 }
 
 PARSER_END(PiaCompiller)
@@ -99,6 +77,11 @@ TOKEN : /* LOOP */
 | < DOWHILE : "ate" >
 }
 
+TOKEN : /* ARITHMETIC OPERATORS */
+{
+  < OPAD : "+" | "-" >
+| < OPMULT : "*" | "/" >
+}
 
 TOKEN :
 {
@@ -116,7 +99,7 @@ void main() :
 void instrucao() :
 {}
 {
-    (declaracaoVariavel() | atribuicao() | expressao()) < FIMINSTRUCAO > | blocoInstrucoes() | estruturaCondicional() | estruturaRepeticao()
+    (declaracaoVariavel() | atribuicao() | expressao() < FIMINSTRUCAO >) | blocoInstrucoes() | estruturaCondicional() | estruturaRepeticao()
 }
 
 void blocoInstrucoes() :
@@ -126,21 +109,13 @@ void blocoInstrucoes() :
 }
 
 void declaracaoVariavel() :
+{}
 {
-//	Token tipo = null;
-//	Token id = null;
-}
-{
-    declaraTipo() < ID > ( < ASSIGN > expressao() )?
-//    {
-//		PiaCompiller.declararVariavel(tipo.image, id.image); // Armazene o nome e o tipo da variável
-//    }
+    declaraTipo() < ID > ( < ASSIGN > expressao() )? < FIMINSTRUCAO >
 }
 
 void declaraTipo() :
-{
-	//Token tipo = null;
-}
+{}
 {
     ( < TIPOINT > | < TIPOFLOAT > | < TIPOBOL > )
 }
@@ -148,10 +123,7 @@ void declaraTipo() :
 void atribuicao() :
 {}
 {
-  < ID > < ASSIGN > expressao()
-//  {
-//  	PiaCompiller.verificarVariavel(token.image); // Verifique se a variável foi declarada
-//  }
+    < ID > < ASSIGN > expressao() < FIMINSTRUCAO >
 }
 
 void estruturaCondicional() :
@@ -163,35 +135,47 @@ void estruturaCondicional() :
 void estruturaRepeticao() :
 {}
 {
-	(estruturaWhile() | estruturaDoWhile())
+    (estruturaWhile() | estruturaDoWhile())
 }
 
 void estruturaWhile() :
 {}
 {
-	< WHILE > <ABREPAR > expressao() < FECHAPAR > blocoInstrucoes()
+    < WHILE > < ABREPAR > expressao() < FECHAPAR > blocoInstrucoes()
 }
 
 void estruturaDoWhile() :
 {}
 {
-	< DO > blocoInstrucoes() < DOWHILE > < ABREPAR > expressao() < FECHAPAR >
+    < DO > blocoInstrucoes() < DOWHILE > < ABREPAR > expressao() < FECHAPAR >
 }
 
 void expressao() :
 {}
 {
-    termo() ( < OPBOOL > termo() )*
+    expressaoRelacional() ( < OPBOOL > expressaoRelacional() )*
+}
+
+void expressaoRelacional() :
+{}
+{
+    expressaoAritmetica() ( < OPREL > expressaoAritmetica() )?
+}
+
+void expressaoAritmetica() :
+{}
+{
+    termo() ( < OPAD > termo() )*
 }
 
 void termo() :
 {}
 {
-    fator() ( < OPREL > fator() )?
+    fator() ( < OPMULT > fator() )*
 }
 
 void fator() :
 {}
 {
-    < ID > | < CONSTANT >
+    < ID > | < CONSTANT > | < ABREPAR > expressao() < FECHAPAR >
 }
